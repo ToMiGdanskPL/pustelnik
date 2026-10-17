@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pustelnik – Gra Warcabowa</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tone.js for sound effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            boardDark: '#1e293b',
+            boardLight: '#cbd5e1',
+            pawnRed: '#ef4444'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      touch-action: manipulation;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-theme {
+      background-color: #020617;
+      color: #f8fafc;
+    }
+    body.dark-theme .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    body.dark-theme .header-bar {
+      background: rgba(15, 23, 42, 0.8);
+      border-color: #1e293b;
+    }
+    body.dark-theme .footer-bar {
+      background: rgba(2, 6, 23, 0.8);
+      border-color: rgba(15, 23, 42, 0.8);
+      color: #64748b;
+    }
+
+    body.light-theme {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    body.light-theme .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(203, 213, 225, 0.8);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+    body.light-theme .header-bar {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #e2e8f0;
+      color: #0f172a;
+    }
+    body.light-theme .footer-bar {
+      background: rgba(248, 250, 252, 0.9);
+      border-color: #e2e8f0;
+      color: #64748b;
+    }
+
+    .checker-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pawn {
+      width: 75%;
+      height: 75%;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pawn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="dark-theme h-full flex flex-col justify-between overflow-x-hidden select-none">
+
+  <header class="header-bar w-full border-b px-4 py-3 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
+          P
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight tracking-wide">Pustelnik (Samotnik)</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-2 text-sm border border-slate-700">
+          <i id="soundIcon" class="fa-solid fa-volume-xmark text-amber-400"></i>
+        </button>
+        <button onclick="toggleTheme()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center gap-1.5 text-sm border border-slate-700">
+          <i id="themeIcon" class="fa-solid fa-sun text-amber-400"></i>
+        </button>
+        <button onclick="openInfoModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-sm border border-slate-700">
+          <i class="fa-solid fa-circle-info"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow flex flex-col justify-center items-center p-3 sm:p-6 max-w-xl w-full mx-auto space-y-4">
+
+    <!-- STATS / PANEL -->
+    <div class="glass-panel w-full rounded-2xl p-4 flex items-center justify-between">
+      <div>
+        <div class="text-xs text-slate-400 font-semibold uppercase">Pozostałe pionki</div>
+        <div id="pawnsCountDisplay" class="text-2xl font-black text-amber-400">32</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400 font-semibold uppercase">Wykonane zbicia</div>
+        <div id="capturesCountDisplay" class="text-2xl font-black text-emerald-400">0</div>
+      </div>
+      <div>
+        <button onclick="resetGame()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition shadow-lg flex items-center gap-2">
+          <i class="fa-solid fa-rotate-right"> Reset</i>
+        </button>
+      </div>
+    </div>
+
+    <!-- BOARD CONTAINER -->
+    <div class="glass-panel p-3 rounded-3xl w-full shadow-2xl flex items-center justify-center">
+      <div id="checkerBoard" class="grid grid-cols-8 gap-1 w-full max-w-[420px] aspect-square bg-slate-950/40 p-2 rounded-2xl border border-slate-700/60">
+        <!-- Generowane dynamicznie -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- INFO MODAL -->
+  <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <h3 class="text-lg font-black text-white">Zasady Gry - Pustelnik</h3>
+        <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim (w pionie lub poziomie, tak jak w warcabach/samotniku) na wolne pole za nim. Zbity pionek znika z planszy. 
+      </p>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        <strong>Jak grać:</strong> Kliknij pionek, który chcesz ruszyć (podświetli się na żółto), a następnie kliknij puste docelowe pole, nad którym znajduje się pionek do zbicia.
+      </p>
+      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
+    </div>
+  </div>
+
+  <!-- WIN / SUMMARY MODAL -->
+  <div id="summaryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center text-xl mx-auto border border-amber-500/30">
