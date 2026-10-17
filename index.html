@@ -178,3 +178,206 @@
   <div id="summaryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
     <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 text-center space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center text-xl mx-auto border border-amber-500/30">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <h3 id="summaryTitle" class="text-2xl font-black text-white">Koniec Gry!</h3>
+      <p id="summaryText" class="text-xs text-slate-300"></p>
+      <button onclick="resetGame(); closeSummaryModal();" class="w-full py-3 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-sm shadow-lg">Zagraj ponownie</button>
+    </div>
+  </div>
+
+  <footer class="footer-bar w-full text-center py-3 text-xs border-t">
+    Pustelnik na bazie planszy warcabowej 8x8
+  </footer>
+
+  <script>
+    let board = [];
+    let selectedCell = null; // {r, c}
+    let soundEnabled = true;
+    let theme = 'dark';
+    let capturesCount = 0;
+    let synth = null;
+
+    function initAudio() {
+      if (!synth && typeof Tone !== 'undefined') {
+        synth = new Tone.Synth().toDestination();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (Tone.context.state !== 'running') Tone.start();
+        initAudio();
+        if (!synth) return;
+        if (type === 'select') synth.triggerAttackRelease("E5", "32n", undefined, 0.1);
+        if (type === 'move') synth.triggerAttackRelease("C5", "16n", undefined, 0.2);
+        if (type === 'win') {
+          const now = Tone.now();
+          synth.triggerAttackRelease("C5", "16n", now);
+          synth.triggerAttackRelease("E5", "16n", now + 0.1);
+          synth.triggerAttackRelease("G5", "8n", now + 0.2);
+        }
+      } catch(e) {}
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-xmark text-amber-400' : 'fa-solid fa-volume-high text-amber-400';
+    }
+
+    function toggleTheme() {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.body.className = `${theme}-theme h-full flex flex-col justify-between overflow-x-hidden select-none`;
+      document.getElementById('themeIcon').className = theme === 'dark' ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-indigo-500';
+    }
+
+    function openInfoModal() { document.getElementById('infoModal').classList.remove('hidden'); }
+    function closeInfoModal() { document.getElementById('infoModal').classList.add('hidden'); }
+    function closeSummaryModal() { document.getElementById('summaryModal').classList.add('hidden'); }
+
+    // Inicjalizacja planszy 8x8 (np. klasyczne zapełnienie środka lub cała plansza z pustym środkiem)
+    // W klasycznym Samotniku na krzyżu jest 33 pola, tutaj dla uproszczenia planszy 8x8 zapełnimy np. wybrane pola lub całą planszę oprócz centrum.
+    function initBoard() {
+      board = [];
+      capturesCount = 0;
+      selectedCell = null;
+
+      for (let r = 0; r < 8; r++) {
+        let row = [];
+        for (let c = 0; c < 8; c++) {
+          // Wypełniamy wszystkie pola pionkami oprócz środkowego pola (3,3)
+          let isCenter = (r === 3 && c === 3);
+          row.push(isCenter ? 0 : 1);
+        }
+        board.push(row);
+      }
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const boardEl = document.getElementById('checkerBoard');
+      boardEl.innerHTML = '';
+
+      let totalPawns = 0;
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'checker-cell rounded-lg ';
+          
+          // Kolory szachownicy
+          if ((r + c) % 2 === 0) {
+            cell.classList.add(theme === 'dark' ? 'bg-slate-800/40' : 'bg-slate-200/60');
+          } else {
+            cell.classList.add(theme === 'dark' ? 'bg-slate-900/60' : 'bg-slate-300/60');
+          }
+
+          // Podświetlenie wybranego pionka
+          if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+            cell.classList.add('ring-2', 'ring-amber-400', 'bg-amber-500/20');
+          }
+
+          if (board[r][c] === 1) {
+            totalPawns++;
+            const pawn = document.createElement('div');
+            pawn.className = 'pawn bg-gradient-to-br from-amber-500 to-red-600 border border-amber-300/40';
+            cell.appendChild(pawn);
+          }
+
+          cell.onclick = () => handleCellClick(r, c);
+          boardEl.appendChild(cell);
+        }
+      }
+
+      document.getElementById('pawnsCountDisplay').innerText = totalPawns;
+      document.getElementById('capturesCountDisplay').innerText = capturesCount;
+
+      checkGameStatus(totalPawns);
+    }
+
+    function handleCellClick(r, c) {
+      if (board[r][c] === 1) {
+        // Wybór pionka
+        selectedCell = { r, c };
+        playSound('select');
+        renderBoard();
+      } else if (board[r][c] === 0 && selectedCell) {
+        // Próba wykonania skoku (zbicia) na puste pole
+        let dr = r - selectedCell.r;
+        let dc = c - selectedCell.c;
+
+        // Skok o 2 pola w poziomie lub pionie
+        if ((Math.abs(dr) === 2 && dc === 0) || (Math.abs(dc) === 2 && dr === 0)) {
+          let midR = selectedCell.r + dr / 2;
+          let midC = selectedCell.c + dc / 2;
+
+          // Sprawdzenie czy na środkowym polu jest pionek do zbicia
+          if (board[midR][midC] === 1) {
+            // Wykonaj ruch
+            board[selectedCell.r][selectedCell.c] = 0;
+            board[midR][midC] = 0;
+            board[r][c] = 1;
+
+            capturesCount++;
+            selectedCell = null;
+            playSound('move');
+            renderBoard();
+          }
+        }
+      }
+    }
+
+    function hasValidMoves() {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          if (board[r][c] === 1) {
+            // Sprawdź 4 kierunki
+            const directions = [[-2, 0], [2, 0], [0, -2], [0, 2]];
+            for (let [dr, dc] of directions) {
+              let nr = r + dr;
+              let nc = c + dc;
+              if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                let midR = r + dr / 2;
+                let midC = c + dc / 2;
+                if (board[nr][nc] === 0 && board[midR][midC] === 1) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    function checkGameStatus(totalPawns) {
+      if (!hasValidMoves()) {
+        setTimeout(() => {
+          const title = document.getElementById('summaryTitle');
+          const text = document.getElementById('summaryText');
+          
+          if (totalPawns === 1) {
+            title.innerText = "Gratulacje! Wygrana!";
+            text.innerText = `Udało Ci się zostawić dokładnie 1 pionek na planszy! Wykonałeś ${capturesCount} zbić.`;
+            playSound('win');
+            if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          } else {
+            title.innerText = "Koniec Ruchów";
+            text.innerText = `Brak dostępnych ruchów. Na planszy pozostało ${totalPawns} pionków (wykonano ${capturesCount} zbić).`;
+          }
+          document.getElementById('summaryModal').classList.remove('hidden');
+        }, 300);
+      }
+    }
+
+    function resetGame() {
+      initBoard();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initBoard();
+    });
+  </script>
+</body>
+</html>
