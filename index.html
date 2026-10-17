@@ -135,7 +135,7 @@
     <div class="glass-panel w-full rounded-2xl p-4 flex items-center justify-between">
       <div>
         <div class="text-xs text-slate-400 font-semibold uppercase">Pozostałe pionki</div>
-        <div id="pawnsCountDisplay" class="text-2xl font-black text-amber-400">32</div>
+        <div id="pawnsCountDisplay" class="text-2xl font-black text-amber-400">63</div>
       </div>
       <div>
         <div class="text-xs text-slate-400 font-semibold uppercase">Wykonane zbicia</div>
@@ -165,10 +165,10 @@
         <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <p class="text-xs text-slate-300 leading-relaxed">
-        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim (w pionie lub poziomie, tak jak w warcabach/samotniku) na wolne pole za nim. Zbity pionek znika z planszy. 
+        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim <strong>wyłącznie po skosie</strong> (po przekątnej) na wolne pole za nim. Zbity pionek znika z planszy.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Jak grać:</strong> Kliknij pionek, który chcesz ruszyć (podświetli się na żółto), a następnie kliknij puste docelowe pole, nad którym znajduje się pionek do zbicia.
+        <strong>Jak grać:</strong> Kliknij pionek, który chcesz ruszyć (podświetli się na żółto), a następnie kliknij puste docelowe pole po skosie, nad którym znajduje się pionek do zbicia.
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -187,7 +187,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Pustelnik na bazie planszy warcabowej 8x8
+    Created by ToMi with AI • wersja 1.0.0
   </footer>
 
   <script>
@@ -236,8 +236,7 @@
     function closeInfoModal() { document.getElementById('infoModal').classList.add('hidden'); }
     function closeSummaryModal() { document.getElementById('summaryModal').classList.add('hidden'); }
 
-    // Inicjalizacja planszy 8x8 (np. klasyczne zapełnienie środka lub cała plansza z pustym środkiem)
-    // W klasycznym Samotniku na krzyżu jest 33 pola, tutaj dla uproszczenia planszy 8x8 zapełnimy np. wybrane pola lub całą planszę oprócz centrum.
+    // Inicjalizacja planszy 8x8 – puste jest tylko pole w dolnym lewym rogu (r = 7, c = 0)
     function initBoard() {
       board = [];
       capturesCount = 0;
@@ -246,9 +245,8 @@
       for (let r = 0; r < 8; r++) {
         let row = [];
         for (let c = 0; c < 8; c++) {
-          // Wypełniamy wszystkie pola pionkami oprócz środkowego pola (3,3)
-          let isCenter = (r === 3 && c === 3);
-          row.push(isCenter ? 0 : 1);
+          let isBottomLeft = (r === 7 && c === 0);
+          row.push(isBottomLeft ? 0 : 1);
         }
         board.push(row);
       }
@@ -266,7 +264,7 @@
           const cell = document.createElement('div');
           cell.className = 'checker-cell rounded-lg ';
           
-          // Kolory szachownicy
+          // Kolory pól szachownicy
           if ((r + c) % 2 === 0) {
             cell.classList.add(theme === 'dark' ? 'bg-slate-800/40' : 'bg-slate-200/60');
           } else {
@@ -307,12 +305,12 @@
         let dr = r - selectedCell.r;
         let dc = c - selectedCell.c;
 
-        // Skok o 2 pola w poziomie lub pionie
-        if ((Math.abs(dr) === 2 && dc === 0) || (Math.abs(dc) === 2 && dr === 0)) {
+        // Skok WYŁĄCZNIE PO SKOSIE (o 2 pola w rzędach i 2 pola w kolumnach)
+        if (Math.abs(dr) === 2 && Math.abs(dc) === 2) {
           let midR = selectedCell.r + dr / 2;
           let midC = selectedCell.c + dc / 2;
 
-          // Sprawdzenie czy na środkowym polu jest pionek do zbicia
+          // Sprawdzenie, czy na środkowym polu znajduje się zbity pionek
           if (board[midR][midC] === 1) {
             // Wykonaj ruch
             board[selectedCell.r][selectedCell.c] = 0;
@@ -332,9 +330,9 @@
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
           if (board[r][c] === 1) {
-            // Sprawdź 4 kierunki
-            const directions = [[-2, 0], [2, 0], [0, -2], [0, 2]];
-            for (let [dr, dc] of directions) {
+            // Sprawdzenie 4 kierunków po skosie (przekątne)
+            const diagonalDirections = [[-2, -2], [-2, 2], [2, -2], [2, 2]];
+            for (let [dr, dc] of diagonalDirections) {
               let nr = r + dr;
               let nc = c + dc;
               if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
