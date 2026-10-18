@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.2.3</title>
+  <title>Pustelnik – Gra Warcabowa v2.3.0</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -184,7 +184,7 @@
       <div class="flex items-center justify-around w-full sm:w-auto gap-6">
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
-          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">30</div>
+          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">31</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Zbicia</div>
@@ -316,8 +316,8 @@
           <ul class="list-disc pl-4 space-y-1">
             <li><strong>Cofnij (3 użycia):</strong> Pozwala cofnąć ostatni ruch i przywrócić usunięty pionek.</li>
             <li><strong>Podpowiedź (3 użycia):</strong> Wskazuje możliwy do wykonania skok poprzez delikatne, niebieskie pulsowanie pionka i pola docelowego przez 2,5 sekundy.</li>
-            <li><strong>Wygląd:</strong> Wybór motywów kolorystycznych szachownicy, pionków oraz 4 symetrycznych układów początkowych (Klasyczny róg, Puste centrum, Krzyż z pustymi narożnikami 2x2, Diament).</li>
-            <li><strong>Statystyki & TOP 10:</strong> Aplikacja zlicza sumę wygranych, najlepszy czas oraz wpisuje najlepszych graczy do tabeli liderów z podaniem dokładnej **daty i godziny** wpisu.</li>
+            <li><strong>Wygląd:</strong> Wybór motywów kolorystycznych szachownicy, pionków oraz 4 symetrycznych układów początkowych (Klasyczny róg, Puste centrum, Krzyż 2x2, Diament).</li>
+            <li><strong>Statystyki & TOP 10:</strong> Aplikacja zlicza sumę wygranych, najlepszy czas oraz wpisuje najlepszych graczy do tabeli liderów z podaniem dokładnej **daty i godziny** oraz **aktywnego trybu gry**.</li>
           </ul>
         </div>
       </div>
@@ -360,7 +360,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.2.3
+    Created by ToMi with AI • wersja 2.3.0
   </footer>
 
   <script>
@@ -560,14 +560,12 @@
             if (currentLayout === 'classic_corner') {
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              // Wolne pola: 5-4 (wiersz 4, kolumna 3) oraz 4-5 (wiersz 3, kolumna 4)
               const is54 = (r === 4 && c === 3);
               const is45 = (r === 3 && c === 4);
               if (!is54 && !is45) {
                 shouldBePawn = true;
               }
             } else if (currentLayout === 'cross') {
-              // Powiększony krzyż: puste narożniki 2x2 (czyli wiersze 0..1 i 6..7, kolumny 0..1 i 6..7)
               const inRowBand = (r >= 2 && r <= 5);
               const inColBand = (c >= 2 && c <= 5);
               if (inRowBand || inColBand) {
@@ -841,7 +839,9 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.2.3\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const layoutObj = BOARD_LAYOUTS.find(l => l.id === currentLayout);
+      const layoutName = layoutObj ? layoutObj.name : currentLayout;
+      const shareText = `🎮 Pustelnik v2.3.0 (${layoutName})\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
@@ -872,10 +872,13 @@
       const now = new Date();
 
       const dateString = `${now.toLocaleDateString('pl-PL')}, ${now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`;
+      const layoutObj = BOARD_LAYOUTS.find(l => l.id === currentLayout);
+      const modeName = layoutObj ? layoutObj.name : 'Klasyczny róg';
 
       const newEntry = {
         name,
         dateTime: dateString,
+        mode: modeName,
         pawnsLeft: parseInt(document.getElementById('pawnsCountDisplay').innerText),
         timeSeconds: secondsElapsed,
         hintsUsed
@@ -906,12 +909,13 @@
         row.className = 'p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs gap-2';
         
         const displayDateTime = item.dateTime || (item.date ? `${item.date}${item.time ? ', ' + item.time : ''}` : '-');
+        const displayMode = item.mode || 'Klasyczny róg';
 
         row.innerHTML = `
           <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-6 h-6 rounded-lg font-black text-xs flex items-center justify-center flex-shrink-0 ${index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-300'}">${index + 1}</div>
             <div class="min-w-0">
-              <div class="font-bold text-white truncate">${item.name}</div>
+              <div class="font-bold text-white truncate">${item.name} <span class="text-[10px] text-amber-400/90 font-normal ml-1">(${displayMode})</span></div>
               <div class="text-[10px] text-slate-400">${displayDateTime}</div>
             </div>
           </div>
