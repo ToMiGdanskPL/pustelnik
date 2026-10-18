@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.1.1</title>
+  <title>Pustelnik – Gra Warcabowa v2.1.2</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -130,11 +130,6 @@
     @keyframes hint-flash {
       from { box-shadow: 0 0 5px #3b82f6, inset 0 0 10px #3b82f6; }
       to { box-shadow: 0 0 20px #60a5fa, inset 0 0 20px #60a5fa; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.05); opacity: 1; }
     }
 
     @keyframes pulse-move {
@@ -309,7 +304,7 @@
         Celem gry jest usunięcie z planszy jak najwięcej pionków poprzez przeskakiwanie po skosie nad sąsiednim pionkiem na wolne pole za nim.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Wersja 2.1.1:</strong> Naprawiono układ początkowy "Puste centrum" oraz "Diament", zapewniając prawidłowe rozmieszczenie pionków na ciemnych polach.
+        <strong>Wersja 2.1.2:</strong> Rozróżniono układy "Puste centrum" (pełna plansza z jednym pustym polem na środku) oraz "Diament" (kompaktowy układ w kształcie rombu/diamentu na środku planszy).
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -349,7 +344,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.1.1
+    Created by ToMi with AI • wersja 2.1.2
   </footer>
 
   <script>
@@ -372,9 +367,9 @@
 
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
-      { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku (ciemne pole)' },
+      { id: 'center_empty', name: 'Puste centrum', desc: 'Pełna plansza z jednym pustym polem na środku' },
       { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
-      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień z pustym środkiem' }
+      { id: 'diamond', name: 'Diament', desc: 'Kompaktowy romb (diament) w centrum' }
     ];
 
     const BOARD_THEMES = [
@@ -547,17 +542,17 @@
 
           if (isDarkCell) {
             if (currentLayout === 'classic_corner') {
+              // Wszystkie ciemne pola z wyjątkiem dolnego lewego rogów (7, 0)
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              // Puste ciemne pole na środku (np. r=3, c=4 lub r=4, c=3)
-              if (!(r === 3 && c === 4)) shouldBePawn = true;
+              // Wszystkie ciemne pola z wyjątkiem dokładnie centralnego pola (3, 3)
+              if (!(r === 3 && c === 3)) shouldBePawn = true;
             } else if (currentLayout === 'cross') {
+              // Układ krzyża
               if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
             } else if (currentLayout === 'diamond') {
-              // Diament: zewnętrzny pierścień z pustym środkiem na ciemnym polu (np. r=3, c=4)
-              if ((r >= 2 && r <= 5 && c >= 2 && c <= 5) && !(r === 3 && c === 4)) {
-                shouldBePawn = true;
-              } else if (!((r >= 2 && r <= 5 && c >= 2 && c <= 5))) {
+              // Kompaktowy diament w centrum (tylko wewnątrz pola od 2 do 5 naciemnych polach)
+              if (r >= 2 && r <= 5 && c >= 2 && c <= 5) {
                 shouldBePawn = true;
               }
             }
@@ -824,7 +819,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.1.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.1.2\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
