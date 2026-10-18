@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.2.1</title>
+  <title>Pustelnik – Gra Warcabowa v2.2.2</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -184,7 +184,7 @@
       <div class="flex items-center justify-around w-full sm:w-auto gap-6">
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
-          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">29</div>
+          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">30</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Zbicia</div>
@@ -360,7 +360,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.2.1
+    Created by ToMi with AI • wersja 2.2.2
   </footer>
 
   <script>
@@ -383,7 +383,7 @@
 
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
-      { id: 'center_empty', name: 'Puste centrum', desc: 'Symetryczny układ z pustym środkiem' },
+      { id: 'center_empty', name: 'Puste centrum', desc: 'Symetryczne wolne pola 4-5 i 5-4 w centrum' },
       { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
       { id: 'diamond', name: 'Diament', desc: 'Kompaktowy romb (diament) w centrum' }
     ];
@@ -560,8 +560,10 @@
             if (currentLayout === 'classic_corner') {
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              // Puste centrum z usuniętymi 2 skrajnymi pionkami dla idealnej wizualnej symetrii
-              if (!(r === 3 && c === 4) && !(r === 0 && c === 7) && !(r === 7 && c === 0)) {
+              // Wolne pola: 5-4 (wiersz 4, kolumna 3) oraz 4-5 (wiersz 3, kolumna 4)
+              const is54 = (r === 4 && c === 3);
+              const is45 = (r === 3 && c === 4);
+              if (!is54 && !is45) {
                 shouldBePawn = true;
               }
             } else if (currentLayout === 'cross') {
@@ -834,7 +836,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.2.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.2.2\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
