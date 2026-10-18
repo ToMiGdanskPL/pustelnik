@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.1.4</title>
+  <title>Pustelnik – Gra Warcabowa v2.2.0</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -150,7 +150,7 @@
         <h1 class="font-bold text-base leading-tight tracking-wide">Pustelnik</h1>
       </div>
 
-      <!-- Ikony w nagłówku (tylko ikony na telefonie, z tekstami od ekranów sm) -->
+      <!-- Ikony w nagłówku (tylko ikony na telefonie, teksty na większych ekranach) -->
       <div class="flex items-center gap-1.5 sm:gap-2">
         <button onclick="openStatsModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1.5 text-xs sm:text-sm border border-slate-700" title="Statystyki">
           <i class="fa-solid fa-chart-pie"></i>
@@ -170,7 +170,7 @@
         <button onclick="toggleTheme()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Motyw">
           <i id="themeIcon" class="fa-solid fa-sun text-amber-400"></i>
         </button>
-        <button onclick="openInfoModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Zasady">
+        <button onclick="openInfoModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Zasady i Instrukcja">
           <i class="fa-solid fa-circle-info"></i>
         </button>
       </div>
@@ -292,20 +292,37 @@
     </div>
   </div>
 
-  <!-- INFO MODAL -->
+  <!-- ZAKTUALIZOWANA INSTRUKCJA OBSŁUGI -->
   <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
-    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-        <h3 class="text-lg font-black text-white">Zasady Gry - Pustelnik</h3>
+        <h3 class="text-lg font-black text-white">Instrukcja Obsługi – Pustelnik</h3>
         <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Celem gry jest usunięcie z planszy jak najwięcej pionków poprzez przeskakiwanie po skosie nad sąsiednim pionkiem na wolne pole za nim.
-      </p>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Wersja 2.1.4:</strong> Ukryto tekst przycisków w nagłówku na urządzeniach mobilnych, aby zapewnić czysty i zwarty wygląd na małych ekranach.
-      </p>
-      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
+
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <div>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-bullseye mr-1"></i> Cel gry</h4>
+          <p>Głównym celem łamigłówki jest usunięcie z planszy jak największej liczby pionków tak, aby na koniec został **dokładnie 1 pionek**.</p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-chess-board mr-1"></i> Zasady przeskakiwania</h4>
+          <p>Zbicia dokonuje się poprzez przeskok wybranym pionkiem nad sąsiednim pionkiem **wyłącznie po skosie** na wolne pole znajdujące się tuż za nim. Zbity pionek natychmiast znika z planszy.</p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-amber-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-gamepad mr-1"></i> Funkcje gry</h4>
+          <ul class="list-disc pl-4 space-y-1">
+            <li><strong>Cofnij (3 użycia):</strong> Pozwala cofnąć ostatni ruch i przywrócić usunięty pionek.</li>
+            <li><strong>Podpowiedź (3 użycia):</strong> Wskazuje możliwy do wykonania skok poprzez delikatne, niebieskie pulsowanie pionka i pola docelowego przez 2,5 sekundy.</li>
+            <li><strong>Wygląd:</strong> Dostęp do wyboru motywów kolorystycznych szachownicy, kolorów pionków oraz 4 unikalnych układów początkowych (Klasyczny róg, Puste centrum, Krzyż, Diament).</li>
+            <li><strong>Statystyki & TOP 10:</strong> Aplikacja zlicza sumę wygranych, najlepszy czas oraz wpisuje najlepszych graczy do tabeli liderów z podaniem dokładnej **daty i godziny** wpisu.</li>
+          </ul>
+        </div>
+      </div>
+
+      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition">Rozumiem</button>
     </div>
   </div>
 
@@ -343,7 +360,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.1.4
+    Created by ToMi with AI • wersja 2.2.0
   </footer>
 
   <script>
@@ -814,7 +831,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.1.4\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.2.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
@@ -844,10 +861,12 @@
       const name = nameInput.value.trim() || 'Anonim';
       const now = new Date();
 
+      // Zapis pełnej daty z godziną i minutą (np. 18.10.2026, 14:35)
+      const dateString = `${now.toLocaleDateString('pl-PL')}, ${now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`;
+
       const newEntry = {
         name,
-        date: now.toLocaleDateString('pl-PL'),
-        time: now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
+        dateTime: dateString,
         pawnsLeft: parseInt(document.getElementById('pawnsCountDisplay').innerText),
         timeSeconds: secondsElapsed,
         hintsUsed
@@ -876,12 +895,22 @@
       top10.forEach((item, index) => {
         const row = document.createElement('div');
         row.className = 'p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs gap-2';
+        
+        // Kompatybilność ze starszym formatem zapisów w localStorage
+        const displayDateTime = item.dateTime || (item.date ? `${item.date}${item.time ? ', ' + item.time : ''}` : '-');
+
         row.innerHTML = `
           <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-6 h-6 rounded-lg font-black text-xs flex items-center justify-center flex-shrink-0 ${index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-300'}">${index + 1}</div>
-            <div class="min-w-0"><div class="font-bold text-white truncate">${item.name}</div><div class="text-[10px] text-slate-400">${item.date}</div></div>
+            <div class="min-w-0">
+              <div class="font-bold text-white truncate">${item.name}</div>
+              <div class="text-[10px] text-slate-400">${displayDateTime}</div>
+            </div>
           </div>
-          <div class="text-right flex-shrink-0"><div class="font-extrabold text-amber-400">${item.pawnsLeft} pionków</div><div class="text-[10px] text-slate-300 font-mono">${formatTime(item.timeSeconds)}</div></div>
+          <div class="text-right flex-shrink-0">
+            <div class="font-extrabold text-amber-400">${item.pawnsLeft} pionków</div>
+            <div class="text-[10px] text-slate-300 font-mono">${formatTime(item.timeSeconds)}</div>
+          </div>
         `;
         container.appendChild(row);
       });
