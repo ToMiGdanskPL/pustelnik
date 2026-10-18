@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.2.2</title>
+  <title>Pustelnik – Gra Warcabowa v2.2.3</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -316,7 +316,7 @@
           <ul class="list-disc pl-4 space-y-1">
             <li><strong>Cofnij (3 użycia):</strong> Pozwala cofnąć ostatni ruch i przywrócić usunięty pionek.</li>
             <li><strong>Podpowiedź (3 użycia):</strong> Wskazuje możliwy do wykonania skok poprzez delikatne, niebieskie pulsowanie pionka i pola docelowego przez 2,5 sekundy.</li>
-            <li><strong>Wygląd:</strong> Wybór motywów kolorystycznych szachownicy, pionków oraz 4 symetrycznych układów początkowych (Klasyczny róg, Puste centrum, Krzyż, Diament).</li>
+            <li><strong>Wygląd:</strong> Wybór motywów kolorystycznych szachownicy, pionków oraz 4 symetrycznych układów początkowych (Klasyczny róg, Puste centrum, Krzyż z pustymi narożnikami 2x2, Diament).</li>
             <li><strong>Statystyki & TOP 10:</strong> Aplikacja zlicza sumę wygranych, najlepszy czas oraz wpisuje najlepszych graczy do tabeli liderów z podaniem dokładnej **daty i godziny** wpisu.</li>
           </ul>
         </div>
@@ -360,7 +360,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.2.2
+    Created by ToMi with AI • wersja 2.2.3
   </footer>
 
   <script>
@@ -384,7 +384,7 @@
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
       { id: 'center_empty', name: 'Puste centrum', desc: 'Symetryczne wolne pola 4-5 i 5-4 w centrum' },
-      { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
+      { id: 'cross', name: 'Krzyż', desc: 'Powiększony krzyż z pustymi narożnikami 2x2' },
       { id: 'diamond', name: 'Diament', desc: 'Kompaktowy romb (diament) w centrum' }
     ];
 
@@ -567,7 +567,12 @@
                 shouldBePawn = true;
               }
             } else if (currentLayout === 'cross') {
-              if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
+              // Powiększony krzyż: puste narożniki 2x2 (czyli wiersze 0..1 i 6..7, kolumny 0..1 i 6..7)
+              const inRowBand = (r >= 2 && r <= 5);
+              const inColBand = (c >= 2 && c <= 5);
+              if (inRowBand || inColBand) {
+                shouldBePawn = true;
+              }
             } else if (currentLayout === 'diamond') {
               if (r >= 2 && r <= 5 && c >= 2 && c <= 5) {
                 shouldBePawn = true;
@@ -836,7 +841,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.2.2\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.2.3\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
