@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa</title>
+  <title>Pustelnik – Gra Warcabowa v2.0.0</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -76,7 +76,19 @@
       color: #64748b;
     }
 
-    /* POLA SZACHOWE */
+    /* MOTYWY PLANSZY */
+    .board-wood .cell-light { background-color: #d7ccc8 !important; border: 1px solid #bcaaa4; }
+    .board-wood .cell-dark { background-color: #5d4037 !important; border: 1px solid #4e342e; }
+
+    .board-graphite .cell-light { background-color: #334155 !important; border: 1px solid #475569; }
+    .board-graphite .cell-dark { background-color: #0f172a !important; border: 1px solid #1e293b; }
+
+    .board-neon .cell-light { background-color: #181825 !important; border: 1px solid #313244; }
+    .board-neon .cell-dark { background-color: #11111b !important; border: 1px solid #cba6f7; box-shadow: inset 0 0 5px rgba(203, 166, 247, 0.3); }
+
+    .board-marble .cell-light { background-color: #e2e8f0 !important; border: 1px solid #cbd5e1; }
+    .board-marble .cell-dark { background-color: #64748b !important; border: 1px solid #475569; }
+
     .checker-cell {
       aspect-ratio: 1;
       display: flex;
@@ -85,40 +97,34 @@
       position: relative;
       cursor: pointer;
       transition: all 0.15s ease;
-      box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
     }
 
-    body.dark-theme .cell-dark {
-      background-color: #0f172a !important;
-      border: 1px solid #1e293b;
-    }
-    body.dark-theme .cell-light {
-      background-color: #334155 !important;
-      border: 1px solid #475569;
-    }
-
-    body.light-theme .cell-dark {
-      background-color: #475569 !important;
-      border: 1px solid #334155;
-    }
-    body.light-theme .cell-light {
-      background-color: #ffffff !important;
-      border: 1px solid #cbd5e1;
-    }
-
-    /* PIONKI */
     .pawn {
       width: 82%;
       height: 82%;
       border-radius: 50%;
       box-shadow: 0 6px 12px rgba(0,0,0,0.45), inset 0 2px 5px rgba(255,255,255,0.5);
-      transition: transform 0.2s ease, background-color 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, opacity 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .pawn:hover {
       transform: scale(1.08);
+    }
+    .pawn.fade-out {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    .valid-move-target {
+      position: absolute;
+      width: 35%;
+      height: 35%;
+      background-color: rgba(59, 130, 246, 0.6);
+      border-radius: 50%;
+      animation: pulse-move 1.2s infinite;
+      pointer-events: none;
     }
 
     .hint-target {
@@ -135,6 +141,11 @@
       0%, 100% { transform: scale(0.95); opacity: 0.8; }
       50% { transform: scale(1.05); opacity: 1; }
     }
+
+    @keyframes pulse-move {
+      0%, 100% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
   </style>
 </head>
 <body class="dark-theme h-full flex flex-col justify-between overflow-x-hidden select-none">
@@ -147,17 +158,22 @@
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight tracking-wide">Pustelnik</h1>
+          <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">v2.0.0</span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="openCustomizationModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Personalizacja wygląd">
-          <i class="fa-solid fa-palette"></i>
-          <span class="hidden sm:inline text-xs font-semibold">Wygląd</span>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button onclick="openStatsModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Statystyki">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="hidden md:inline text-xs font-semibold">Statystyki</span>
         </button>
-        <button onclick="openTop10Modal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Tabela TOP 10">
+        <button onclick="openCustomizationModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Personalizacja">
+          <i class="fa-solid fa-palette"></i>
+          <span class="hidden md:inline text-xs font-semibold">Wygląd</span>
+        </button>
+        <button onclick="openTop10Modal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="TOP 10">
           <i class="fa-solid fa-trophy"></i>
-          <span class="hidden sm:inline text-xs font-semibold">TOP 10</span>
+          <span class="hidden md:inline text-xs font-semibold">TOP 10</span>
         </button>
         <button onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-2 text-sm border border-slate-700">
           <i id="soundIcon" class="fa-solid fa-volume-xmark text-amber-400"></i>
@@ -174,8 +190,8 @@
 
   <main class="flex-grow flex flex-col justify-center items-center p-3 sm:p-6 max-w-6xl w-full mx-auto space-y-4">
 
-    <!-- PANEL STATYSTYK -->
-    <div class="glass-panel w-full max-w-3xl rounded-2xl p-4 flex items-center justify-between gap-2">
+    <!-- PANEL STATYSTYK I KONTROLI -->
+    <div class="glass-panel w-full max-w-3xl rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
       <div>
         <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
         <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">31</div>
@@ -188,10 +204,14 @@
         <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Czas</div>
         <div id="timerDisplay" class="text-xl sm:text-2xl font-black text-indigo-400 font-mono">00:00</div>
       </div>
-      <div class="flex flex-col sm:flex-row gap-1.5">
+      <div class="flex flex-wrap gap-1.5">
+        <button id="undoBtn" onclick="undoMove()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center opacity-50 cursor-not-allowed">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span id="undoBtnText">Cofnij (3)</span>
+        </button>
         <button id="hintBtn" onclick="useHint()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
           <i class="fa-solid fa-lightbulb text-amber-300"></i>
-          <span id="hintBtnText">Podpowiedź (3/3)</span>
+          <span id="hintBtnText">Podpowiedź (3)</span>
         </button>
         <button onclick="resetGame()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
           <i class="fa-solid fa-rotate-right"></i> Reset
@@ -199,8 +219,8 @@
       </div>
     </div>
 
-    <!-- POWIĘKSZONA PLANSZA W WERSJI DESKTOPOWEJ -->
-    <div class="glass-panel p-2 sm:p-4 rounded-3xl w-full max-w-3xl lg:max-w-none lg:w-[80vh] aspect-square shadow-2xl flex items-center justify-center border-2 border-slate-700">
+    <!-- PLANSZA -->
+    <div id="boardWrapper" class="glass-panel p-2 sm:p-4 rounded-3xl w-full max-w-3xl lg:max-w-none lg:w-[76vh] aspect-square shadow-2xl flex items-center justify-center border-2 border-slate-700 board-graphite">
       <div id="checkerBoard" class="grid grid-cols-8 gap-0.5 sm:gap-1.5 w-full h-full aspect-square bg-slate-950 p-1.5 sm:p-3 rounded-2xl border-4 border-slate-700/80 shadow-inner">
         <!-- Generowane dynamicznie -->
       </div>
@@ -208,46 +228,64 @@
 
   </main>
 
-  <!-- MODAL PERSONALIZACJI -->
+  <!-- MODAL PERSONALIZACJI (WYGLĄD & UKŁAD) -->
   <div id="customizationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
-    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-palette text-amber-400 text-lg"></i>
-          <h3 class="text-lg font-black text-white">Kolor Pionków</h3>
+          <h3 class="text-lg font-black text-white">Personalizacja Gry</h3>
         </div>
         <button onclick="closeCustomizationModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       
-      <p class="text-xs text-slate-300">Wybierz preferowany motyw kolorystyczny dla swoich pionków:</p>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Wariant układu początkowego:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="layoutsContainer">
+            <!-- Wypełniane dynamicznie -->
+          </div>
+        </div>
 
-      <div class="grid grid-cols-2 gap-3 pt-1" id="pawnThemesContainer">
-        <!-- Generowane dynamicznie -->
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Motyw kolorystyczny planszy:</label>
+          <div class="grid grid-cols-2 gap-2" id="boardThemesContainer">
+            <!-- Wypełniane dynamicznie -->
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Kolor pionków:</label>
+          <div class="grid grid-cols-3 gap-2" id="pawnThemesContainer">
+            <!-- Wypełniane dynamicznie -->
+          </div>
+        </div>
       </div>
 
-      <button onclick="closeCustomizationModal()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-md mt-2">
-        Gotowe
+      <button onclick="closeCustomizationModal(); resetGame();" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm shadow-md mt-2">
+        Zatwierdź i zresetuj grę
       </button>
     </div>
   </div>
 
-  <!-- INFO MODAL -->
-  <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+  <!-- MODAL STATYSTYK -->
+  <div id="statsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
     <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-        <h3 class="text-lg font-black text-white">Zasady Gry - Pustelnik</h3>
-        <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-indigo-400 text-lg"></i>
+          <h3 class="text-lg font-black text-white">Statystyki Gracza</h3>
+        </div>
+        <button onclick="closeStatsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim <strong>wyłącznie po skosie</strong> (po przekątnej) na wolne pole za nim.
-      </p>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Rozstawienie pionków:</strong> Pionki znajdują się wyłącznie na ciemnych polach szachownicy. Dolny lewy róg pozostaje pusty na start.
-      </p>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Personalizacja:</strong> Możesz dostosować kolor pionków w menu "Wygląd".
-      </p>
-      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
+
+      <div class="grid grid-cols-2 gap-3" id="statsGridContainer">
+        <!-- Wypełniane dynamicznie -->
+      </div>
+
+      <button onclick="closeStatsModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700">
+        Zamknij
+      </button>
     </div>
   </div>
 
@@ -262,13 +300,28 @@
         <button onclick="closeTop10Modal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       
-      <div class="overflow-y-auto flex-grow space-y-2 pr-1" id="top10List">
-        <!-- Generowane dynamicznie -->
-      </div>
+      <div class="overflow-y-auto flex-grow space-y-2 pr-1" id="top10List"></div>
 
       <button onclick="closeTop10Modal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 flex-shrink-0">
         Zamknij
       </button>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+    <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <h3 class="text-lg font-black text-white">Zasady Gry - Pustelnik</h3>
+        <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim <strong>wyłącznie po skosie</strong> na wolne pole za nim.
+      </p>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        <strong>Nowości v2.0.0:</strong> Cofanie ruchów (do 3 na grę), wybór układu startowego, motywy planszy oraz udostępnianie wyników!
+      </p>
+      <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
   </div>
 
@@ -280,6 +333,12 @@
       </div>
       <h3 id="summaryTitle" class="text-2xl font-black text-white">Koniec Ruchów!</h3>
       <p id="summaryText" class="text-xs text-slate-300 leading-relaxed"></p>
+
+      <div class="flex gap-2">
+        <button onclick="shareScore()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-share-nodes"></i> Udostępnij wynik
+        </button>
+      </div>
 
       <div id="top10InputSection" class="hidden space-y-3 pt-2 border-t border-slate-800">
         <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">
@@ -300,7 +359,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 1.0.4
+    Created by ToMi with AI • wersja 2.0.0
   </footer>
 
   <script>
@@ -312,21 +371,39 @@
     let capturesCount = 0;
     let hintsLeft = 3;
     let hintsUsed = 0;
+    let undoCountLeft = 3;
+    let historyStack = [];
     let synth = null;
 
     let timerInterval = null;
     let secondsElapsed = 0;
 
-    // PALETY KOLORÓW PIONKÓW
-    const PAWN_THEMES = [
-      { id: 'amber', name: 'Klasyczny Bursztyn', style: 'bg-gradient-to-br from-amber-500 to-red-600 border-amber-200/50' },
-      { id: 'emerald', name: 'Szmaragd', style: 'bg-gradient-to-br from-emerald-400 to-teal-700 border-emerald-200/50' },
-      { id: 'purple', name: 'Fioletowy Król', style: 'bg-gradient-to-br from-purple-500 to-indigo-800 border-purple-200/50' },
-      { id: 'blue', name: 'Oceaniczny Błękit', style: 'bg-gradient-to-br from-cyan-400 to-blue-700 border-cyan-200/50' },
-      { id: 'gold', name: 'Złoto i Miedź', style: 'bg-gradient-to-br from-yellow-300 to-amber-600 border-yellow-100/50' },
-      { id: 'ruby', name: 'Neonowa Czerwień', style: 'bg-gradient-to-br from-rose-500 to-red-800 border-rose-200/50' }
+    // KONFIGURACJA PERSONALIZACJI
+    const BOARD_LAYOUTS = [
+      { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
+      { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku planszy' },
+      { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
+      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień z pustym środkiem' }
     ];
 
+    const BOARD_THEMES = [
+      { id: 'board-graphite', name: 'Ciemny Grafit', class: 'board-graphite' },
+      { id: 'board-wood', name: 'Klasyczne Drewno', class: 'board-wood' },
+      { id: 'board-neon', name: 'Cyberpunk Neon', class: 'board-neon' },
+      { id: 'board-marble', name: 'Marmurowy Kamień', class: 'board-marble' }
+    ];
+
+    const PAWN_THEMES = [
+      { id: 'amber', name: 'Bursztyn', style: 'bg-gradient-to-br from-amber-500 to-red-600 border-amber-200/50' },
+      { id: 'emerald', name: 'Szmaragd', style: 'bg-gradient-to-br from-emerald-400 to-teal-700 border-emerald-200/50' },
+      { id: 'purple', name: 'Fiolet', style: 'bg-gradient-to-br from-purple-500 to-indigo-800 border-purple-200/50' },
+      { id: 'blue', name: 'Błękit', style: 'bg-gradient-to-br from-cyan-400 to-blue-700 border-cyan-200/50' },
+      { id: 'gold', name: 'Złoto', style: 'bg-gradient-to-br from-yellow-300 to-amber-600 border-yellow-100/50' },
+      { id: 'ruby', name: 'Czerwień', style: 'bg-gradient-to-br from-rose-500 to-red-800 border-rose-200/50' }
+    ];
+
+    let currentLayout = localStorage.getItem('pustelnik_layout') || 'classic_corner';
+    let currentBoardTheme = localStorage.getItem('pustelnik_board_theme') || 'board-graphite';
     let currentPawnTheme = localStorage.getItem('pustelnik_pawn_theme') || 'amber';
 
     function initAudio() {
@@ -344,6 +421,7 @@
         if (type === 'select') synth.triggerAttackRelease("E5", "32n", undefined, 0.1);
         if (type === 'move') synth.triggerAttackRelease("C5", "16n", undefined, 0.2);
         if (type === 'hint') synth.triggerAttackRelease("A5", "16n", undefined, 0.25);
+        if (type === 'undo') synth.triggerAttackRelease("G4", "16n", undefined, 0.2);
         if (type === 'win') {
           const now = Tone.now();
           synth.triggerAttackRelease("C5", "16n", now);
@@ -362,7 +440,6 @@
       theme = theme === 'dark' ? 'light' : 'dark';
       document.body.className = `${theme}-theme h-full flex flex-col justify-between overflow-x-hidden select-none`;
       document.getElementById('themeIcon').className = theme === 'dark' ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-indigo-500';
-      renderBoard();
     }
 
     function openInfoModal() { document.getElementById('infoModal').classList.remove('hidden'); }
@@ -370,38 +447,64 @@
     function closeSummaryModal() { document.getElementById('summaryModal').classList.add('hidden'); }
     function openTop10Modal() { renderTop10List(); document.getElementById('top10Modal').classList.remove('hidden'); }
     function closeTop10Modal() { document.getElementById('top10Modal').classList.add('hidden'); }
+    function openStatsModal() { renderStatsModal(); document.getElementById('statsModal').classList.remove('hidden'); }
+    function closeStatsModal() { document.getElementById('statsModal').classList.add('hidden'); }
 
     function openCustomizationModal() {
-      renderPawnThemesList();
+      renderCustomizationOptions();
       document.getElementById('customizationModal').classList.remove('hidden');
     }
     function closeCustomizationModal() {
       document.getElementById('customizationModal').classList.add('hidden');
     }
 
-    function renderPawnThemesList() {
-      const container = document.getElementById('pawnThemesContainer');
-      container.innerHTML = '';
+    function renderCustomizationOptions() {
+      // Layouts
+      const lContainer = document.getElementById('layoutsContainer');
+      lContainer.innerHTML = '';
+      BOARD_LAYOUTS.forEach(l => {
+        const isSelected = l.id === currentLayout;
+        const btn = document.createElement('button');
+        btn.className = `p-3 rounded-2xl border text-left transition ${
+          isSelected ? 'border-amber-400 bg-amber-500/10 ring-2 ring-amber-400/40' : 'border-slate-700 bg-slate-800/50 hover:bg-slate-800'
+        }`;
+        btn.onclick = () => { currentLayout = l.id; localStorage.setItem('pustelnik_layout', l.id); renderCustomizationOptions(); };
+        btn.innerHTML = `<div class="font-bold text-xs ${isSelected ? 'text-amber-400' : 'text-white'}">${l.name}</div><div class="text-[10px] text-slate-400 mt-0.5">${l.desc}</div>`;
+        lContainer.appendChild(btn);
+      });
 
+      // Board Themes
+      const bContainer = document.getElementById('boardThemesContainer');
+      bContainer.innerHTML = '';
+      BOARD_THEMES.forEach(t => {
+        const isSelected = t.id === currentBoardTheme;
+        const btn = document.createElement('button');
+        btn.className = `p-3 rounded-2xl border text-left transition ${
+          isSelected ? 'border-amber-400 bg-amber-500/10 ring-2 ring-amber-400/40' : 'border-slate-700 bg-slate-800/50 hover:bg-slate-800'
+        }`;
+        btn.onclick = () => { currentBoardTheme = t.id; localStorage.setItem('pustelnik_board_theme', t.id); applyBoardTheme(); renderCustomizationOptions(); };
+        btn.innerHTML = `<div class="font-bold text-xs ${isSelected ? 'text-amber-400' : 'text-white'}">${t.name}</div>`;
+        bContainer.appendChild(btn);
+      });
+
+      // Pawn Themes
+      const pContainer = document.getElementById('pawnThemesContainer');
+      pContainer.innerHTML = '';
       PAWN_THEMES.forEach(t => {
         const isSelected = t.id === currentPawnTheme;
         const btn = document.createElement('button');
-        btn.className = `p-3 rounded-2xl border flex flex-col items-center gap-2 transition ${
+        btn.className = `p-2.5 rounded-2xl border flex items-center gap-2 transition ${
           isSelected ? 'border-amber-400 bg-amber-500/10 ring-2 ring-amber-400/40' : 'border-slate-700 bg-slate-800/50 hover:bg-slate-800'
         }`;
-        btn.onclick = () => {
-          currentPawnTheme = t.id;
-          localStorage.setItem('pustelnik_pawn_theme', t.id);
-          renderPawnThemesList();
-          renderBoard();
-        };
-
-        btn.innerHTML = `
-          <div class="w-8 h-8 rounded-full ${t.style} border shadow-md"></div>
-          <span class="text-xs font-bold ${isSelected ? 'text-amber-400' : 'text-slate-300'}">${t.name}</span>
-        `;
-        container.appendChild(btn);
+        btn.onclick = () => { currentPawnTheme = t.id; localStorage.setItem('pustelnik_pawn_theme', t.id); renderCustomizationOptions(); renderBoard(); };
+        btn.innerHTML = `<div class="w-5 h-5 rounded-full ${t.style} border flex-shrink-0"></div><span class="text-xs font-bold ${isSelected ? 'text-amber-400' : 'text-slate-300'} truncate">${t.name}</span>`;
+        pContainer.appendChild(btn);
       });
+    }
+
+    function applyBoardTheme() {
+      const wrapper = document.getElementById('boardWrapper');
+      wrapper.className = `glass-panel p-2 sm:p-4 rounded-3xl w-full max-w-3xl lg:max-w-none lg:w-[76vh] aspect-square shadow-2xl flex items-center justify-center border-2 border-slate-700 ${currentBoardTheme}`;
     }
 
     function startTimer() {
@@ -436,22 +539,33 @@
       capturesCount = 0;
       hintsLeft = 3;
       hintsUsed = 0;
+      undoCountLeft = 3;
+      historyStack = [];
       selectedCell = null;
       hintCell = null;
 
-      updateHintButtonUI();
+      updateButtonsUI();
+      applyBoardTheme();
 
       for (let r = 0; r < 8; r++) {
         let row = [];
         for (let c = 0; c < 8; c++) {
           let isDarkCell = ((r + c) % 2 !== 0);
-          let isBottomLeft = (r === 7 && c === 0);
+          let shouldBePawn = false;
 
-          if (isDarkCell && !isBottomLeft) {
-            row.push(1);
-          } else {
-            row.push(0);
+          if (isDarkCell) {
+            if (currentLayout === 'classic_corner') {
+              if (!(r === 7 && c === 0)) shouldBePawn = true;
+            } else if (currentLayout === 'center_empty') {
+              if (!(r === 3 && c === 3)) shouldBePawn = true;
+            } else if (currentLayout === 'cross') {
+              if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
+            } else if (currentLayout === 'diamond') {
+              if (r > 1 && r < 6 && c > 1 && c < 6 && !(r === 3 && c === 3)) shouldBePawn = true;
+              else if (!(r === 7 && c === 0)) shouldBePawn = true;
+            }
           }
+          row.push(shouldBePawn ? 1 : 0);
         }
         board.push(row);
       }
@@ -460,14 +574,20 @@
       renderBoard();
     }
 
-    function updateHintButtonUI() {
-      const btn = document.getElementById('hintBtn');
-      const txt = document.getElementById('hintBtnText');
-      txt.innerText = `Podpowiedź (${hintsLeft}/3)`;
-      if (hintsLeft <= 0) {
-        btn.classList.add('opacity-50', 'cursor-not-allowed');
+    function updateButtonsUI() {
+      const hBtn = document.getElementById('hintBtn');
+      const hTxt = document.getElementById('hintBtnText');
+      hTxt.innerText = `Podpowiedź (${hintsLeft})`;
+      if (hintsLeft <= 0) hBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      else hBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      const uBtn = document.getElementById('undoBtn');
+      const uTxt = document.getElementById('undoBtnText');
+      uTxt.innerText = `Cofnij (${undoCountLeft})`;
+      if (undoCountLeft <= 0 || historyStack.length === 0) {
+        uBtn.classList.add('opacity-50', 'cursor-not-allowed');
       } else {
-        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        uBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
     }
 
@@ -482,6 +602,7 @@
 
       let totalPawns = 0;
       const pawnStyle = getSelectedPawnStyle();
+      const validMovesForSelected = selectedCell ? getValidMovesForCell(selectedCell.r, selectedCell.c) : [];
 
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -496,6 +617,13 @@
 
           if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
             cell.classList.add('ring-4', 'ring-amber-400', 'z-10');
+          }
+
+          // Wyświetlanie kropek dostępnych ruchów dla zaznaczonego pionka
+          if (validMovesForSelected.some(m => m.toR === r && m.toC === c)) {
+            const moveDot = document.createElement('div');
+            moveDot.className = 'valid-move-target';
+            cell.appendChild(moveDot);
           }
 
           if (hintCell) {
@@ -523,8 +651,26 @@
 
       document.getElementById('pawnsCountDisplay').innerText = totalPawns;
       document.getElementById('capturesCountDisplay').innerText = capturesCount;
+      updateButtonsUI();
 
       checkGameStatus(totalPawns);
+    }
+
+    function getValidMovesForCell(r, c) {
+      const moves = [];
+      const diagonalDirections = [[-2, -2], [-2, 2], [2, -2], [2, 2]];
+      for (let [dr, dc] of diagonalDirections) {
+        let nr = r + dr;
+        let nc = c + dc;
+        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+          let midR = r + dr / 2;
+          let midC = c + dc / 2;
+          if (board[nr][nc] === 0 && board[midR][midC] === 1) {
+            moves.push({ fromR: r, fromC: c, toR: nr, toC: nc, midR, midC });
+          }
+        }
+      }
+      return moves;
     }
 
     function handleCellClick(r, c) {
@@ -534,72 +680,80 @@
         playSound('select');
         renderBoard();
       } else if (board[r][c] === 0 && selectedCell) {
-        let dr = r - selectedCell.r;
-        let dc = c - selectedCell.c;
+        const validMoves = getValidMovesForCell(selectedCell.r, selectedCell.c);
+        const chosenMove = validMoves.find(m => m.toR === r && m.toC === c);
 
-        if (Math.abs(dr) === 2 && Math.abs(dc) === 2) {
-          let midR = selectedCell.r + dr / 2;
-          let midC = selectedCell.c + dc / 2;
+        if (chosenMove) {
+          // Zapis do historii przed ruchem (do cofania)
+          historyStack.push({
+            boardSnapshot: JSON.parse(JSON.stringify(board)),
+            captures: capturesCount,
+            fromR: selectedCell.r,
+            fromC: selectedCell.c,
+            toR: r,
+            toC: c,
+            midR: chosenMove.midR,
+            midC: chosenMove.midC
+          });
 
-          if (board[midR][midC] === 1) {
-            board[selectedCell.r][selectedCell.c] = 0;
-            board[midR][midC] = 0;
-            board[r][c] = 1;
+          board[selectedCell.r][selectedCell.c] = 0;
+          board[chosenMove.midR][chosenMove.midC] = 0;
+          board[r][c] = 1;
 
-            capturesCount++;
-            selectedCell = null;
-            hintCell = null;
-            playSound('move');
-            renderBoard();
-          }
+          capturesCount++;
+          selectedCell = null;
+          hintCell = null;
+          playSound('move');
+          renderBoard();
         }
       }
     }
 
-    function findValidMoves() {
-      const moves = [];
-      const diagonalDirections = [[-2, -2], [-2, 2], [2, -2], [2, 2]];
+    function undoMove() {
+      if (undoCountLeft <= 0 || historyStack.length === 0) return;
+      const lastState = historyStack.pop();
+      board = lastState.boardSnapshot;
+      capturesCount = lastState.captures;
+      undoCountLeft--;
+      selectedCell = null;
+      hintCell = null;
+      playSound('undo');
+      renderBoard();
+    }
 
+    function findAllValidMoves() {
+      const allMoves = [];
       for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
           if (board[r][c] === 1) {
-            for (let [dr, dc] of diagonalDirections) {
-              let nr = r + dr;
-              let nc = c + dc;
-              if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                let midR = r + dr / 2;
-                let midC = c + dc / 2;
-                if (board[nr][nc] === 0 && board[midR][midC] === 1) {
-                  moves.push({ fromR: r, fromC: c, toR: nr, toC: nc });
-                }
-              }
-            }
+            allMoves.push(...getValidMovesForCell(r, c));
           }
         }
       }
-      return moves;
+      return allMoves;
     }
 
     function useHint() {
       if (hintsLeft <= 0) return;
-      const validMoves = findValidMoves();
+      const validMoves = findAllValidMoves();
       if (validMoves.length > 0) {
         const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
         hintCell = randomMove;
         selectedCell = { r: randomMove.fromR, c: randomMove.fromC };
         hintsLeft--;
         hintsUsed++;
-        updateHintButtonUI();
         playSound('hint');
         renderBoard();
       }
     }
 
     function checkGameStatus(totalPawns) {
-      const validMoves = findValidMoves();
+      const validMoves = findAllValidMoves();
 
       if (validMoves.length === 0) {
         stopTimer();
+        recordGameStats(totalPawns === 1, totalPawns);
+
         setTimeout(() => {
           const title = document.getElementById('summaryTitle');
           const text = document.getElementById('summaryText');
@@ -620,6 +774,60 @@
       }
     }
 
+    // STATYSTYKI GRACZA
+    function getPlayerStats() {
+      const saved = localStorage.getItem('pustelnik_stats');
+      return saved ? JSON.parse(saved) : { gamesPlayed: 0, gamesWon: 0, bestTime: null, totalCaptures: 0 };
+    }
+
+    function recordGameStats(isWin, pawnsLeft) {
+      let stats = getPlayerStats();
+      stats.gamesPlayed++;
+      if (isWin) stats.gamesWon++;
+      stats.totalCaptures += capturesCount;
+      if (isWin && (stats.bestTime === null || secondsElapsed < stats.bestTime)) {
+        stats.bestTime = secondsElapsed;
+      }
+      localStorage.setItem('pustelnik_stats', JSON.stringify(stats));
+    }
+
+    function renderStatsModal() {
+      const stats = getPlayerStats();
+      const container = document.getElementById('statsGridContainer');
+      container.innerHTML = `
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700 text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Rozegrane gry</div>
+          <div class="text-xl font-black text-white mt-1">${stats.gamesPlayed}</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700 text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Wygrane (1 pionek)</div>
+          <div class="text-xl font-black text-amber-400 mt-1">${stats.gamesWon}</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700 text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Najlepszy czas</div>
+          <div class="text-xl font-black text-indigo-400 mt-1">${stats.bestTime !== null ? formatTime(stats.bestTime) : '-'}</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700 text-center">
+          <div class="text-[10px] text-slate-400 font-bold uppercase">Wszystkie zbicia</div>
+          <div class="text-xl font-black text-emerald-400 mt-1">${stats.totalCaptures}</div>
+        </div>
+      `;
+    }
+
+    // UDOSTĘPNIANIE WYNIKU
+    function shareScore() {
+      const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
+      const shareText = `🎮 Pustelnik v2.0.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      
+      if (navigator.share) {
+        navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareText);
+        alert('Wynik skopiowany do schowka!');
+      }
+    }
+
+    // TOP 10
     function getTop10Data() {
       const saved = localStorage.getItem('pustelnik_top10');
       return saved ? JSON.parse(saved) : [];
@@ -631,39 +839,27 @@
         (pawnsLeft === top10[top10.length - 1].pawnsLeft && secondsElapsed < top10[top10.length - 1].timeSeconds);
 
       const inputSection = document.getElementById('top10InputSection');
-      if (isQualified) {
-        inputSection.classList.remove('hidden');
-      } else {
-        inputSection.classList.add('hidden');
-      }
+      if (isQualified) inputSection.classList.remove('hidden');
+      else inputSection.classList.add('hidden');
     }
 
     function saveScoreToTop10() {
       const nameInput = document.getElementById('playerNameInput');
       const name = nameInput.value.trim() || 'Anonim';
-      
       const now = new Date();
-      const dateStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const timeStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
 
       const newEntry = {
-        name: name,
-        date: dateStr,
-        time: timeStr,
+        name,
+        date: now.toLocaleDateString('pl-PL'),
+        time: now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
         pawnsLeft: parseInt(document.getElementById('pawnsCountDisplay').innerText),
         timeSeconds: secondsElapsed,
-        hintsUsed: hintsUsed
+        hintsUsed
       };
 
       let top10 = getTop10Data();
       top10.push(newEntry);
-
-      top10.sort((a, b) => {
-        if (a.pawnsLeft !== b.pawnsLeft) return a.pawnsLeft - b.pawnsLeft;
-        if (a.timeSeconds !== b.timeSeconds) return a.timeSeconds - b.timeSeconds;
-        return a.hintsUsed - b.hintsUsed;
-      });
-
+      top10.sort((a, b) => a.pawnsLeft !== b.pawnsLeft ? a.pawnsLeft - b.pawnsLeft : a.timeSeconds - b.timeSeconds);
       top10 = top10.slice(0, 10);
       localStorage.setItem('pustelnik_top10', JSON.stringify(top10));
 
@@ -676,7 +872,7 @@
       const top10 = getTop10Data();
 
       if (top10.length === 0) {
-        container.innerHTML = `<div class="text-center text-slate-500 py-8 text-xs font-semibold">Brak zapisanych wyników. Bądź pierwszy!</div>`;
+        container.innerHTML = `<div class="text-center text-slate-500 py-8 text-xs font-semibold">Brak zapisanych wyników.</div>`;
         return;
       }
 
@@ -684,37 +880,20 @@
       top10.forEach((item, index) => {
         const row = document.createElement('div');
         row.className = 'p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs gap-2';
-        
         row.innerHTML = `
           <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-6 h-6 rounded-lg font-black text-xs flex items-center justify-center flex-shrink-0 ${
-              index === 0 ? 'bg-amber-400 text-slate-950' : 
-              index === 1 ? 'bg-slate-300 text-slate-950' : 
-              index === 2 ? 'bg-amber-700 text-white' : 'bg-slate-700 text-slate-300'
-            }">
-              ${index + 1}
-            </div>
-            <div class="min-w-0">
-              <div class="font-bold text-white truncate">${item.name}</div>
-              <div class="text-[10px] text-slate-400">${item.date} ${item.time}</div>
-            </div>
+            <div class="w-6 h-6 rounded-lg font-black text-xs flex items-center justify-center flex-shrink-0 ${index === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-700 text-slate-300'}">${index + 1}</div>
+            <div class="min-w-0"><div class="font-bold text-white truncate">${item.name}</div><div class="text-[10px] text-slate-400">${item.date}</div></div>
           </div>
-          <div class="text-right flex-shrink-0 space-y-0.5">
-            <div class="font-extrabold text-amber-400">${item.pawnsLeft} ${item.pawnsLeft === 1 ? 'pionek' : 'pionków'}</div>
-            <div class="text-[10px] text-slate-300 font-mono"><i class="fa-solid fa-clock text-[9px] text-indigo-400"></i> ${formatTime(item.timeSeconds)} | <i class="fa-solid fa-lightbulb text-[9px] text-yellow-400"></i> ${item.hintsUsed}</div>
-          </div>
+          <div class="text-right flex-shrink-0"><div class="font-extrabold text-amber-400">${item.pawnsLeft} pionków</div><div class="text-[10px] text-slate-300 font-mono">${formatTime(item.timeSeconds)}</div></div>
         `;
         container.appendChild(row);
       });
     }
 
-    function resetGame() {
-      initBoard();
-    }
+    function resetGame() { initBoard(); }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      initBoard();
-    });
+    document.addEventListener('DOMContentLoaded', () => { initBoard(); });
   </script>
 </body>
 </html>
