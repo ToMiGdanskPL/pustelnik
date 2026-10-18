@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.1.3</title>
+  <title>Pustelnik – Gra Warcabowa v2.1.4</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -142,36 +142,35 @@
 
   <!-- NAGŁÓWEK -->
   <header class="header-bar w-full border-b px-3 py-2.5 sticky top-0 z-40 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-slate-950 font-black text-base shadow-md">
-            P
-          </div>
-          <h1 class="font-bold text-base leading-tight tracking-wide">Pustelnik</h1>
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-slate-950 font-black text-base shadow-md">
+          P
         </div>
+        <h1 class="font-bold text-base leading-tight tracking-wide">Pustelnik</h1>
       </div>
 
-      <div class="flex items-center justify-center gap-1.5 flex-wrap">
-        <button onclick="openStatsModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1 text-xs border border-slate-700" title="Statystyki">
+      <!-- Ikony w nagłówku (tylko ikony na telefonie, z tekstami od ekranów sm) -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button onclick="openStatsModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1.5 text-xs sm:text-sm border border-slate-700" title="Statystyki">
           <i class="fa-solid fa-chart-pie"></i>
-          <span>Statystyki</span>
+          <span class="hidden sm:inline font-semibold">Statystyki</span>
         </button>
-        <button onclick="openCustomizationModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1 text-xs border border-slate-700" title="Personalizacja">
+        <button onclick="openCustomizationModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-xs sm:text-sm border border-slate-700" title="Personalizacja">
           <i class="fa-solid fa-palette"></i>
-          <span>Wygląd</span>
+          <span class="hidden sm:inline font-semibold">Wygląd</span>
         </button>
-        <button onclick="openTop10Modal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1 text-xs border border-slate-700" title="TOP 10">
+        <button onclick="openTop10Modal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-xs sm:text-sm border border-slate-700" title="TOP 10">
           <i class="fa-solid fa-trophy"></i>
-          <span>TOP 10</span>
+          <span class="hidden sm:inline font-semibold">TOP 10</span>
         </button>
-        <button onclick="toggleSound()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1 text-xs border border-slate-700" title="Dźwięk">
+        <button onclick="toggleSound()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Dźwięk">
           <i id="soundIcon" class="fa-solid fa-volume-xmark text-amber-400"></i>
         </button>
-        <button onclick="toggleTheme()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center gap-1 text-xs border border-slate-700" title="Motyw">
+        <button onclick="toggleTheme()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Motyw">
           <i id="themeIcon" class="fa-solid fa-sun text-amber-400"></i>
         </button>
-        <button onclick="openInfoModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-xs border border-slate-700" title="Zasady">
+        <button onclick="openInfoModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-xs sm:text-sm border border-slate-700" title="Zasady">
           <i class="fa-solid fa-circle-info"></i>
         </button>
       </div>
@@ -304,7 +303,7 @@
         Celem gry jest usunięcie z planszy jak najwięcej pionków poprzez przeskakiwanie po skosie nad sąsiednim pionkiem na wolne pole za nim.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Wersja 2.1.3:</strong> Naprawiono układ "Puste centrum" – wolne pole startowe znajduje się teraz poprawnie na środkowym ciemnym polu planszy (3, 4).
+        <strong>Wersja 2.1.4:</strong> Ukryto tekst przycisków w nagłówku na urządzeniach mobilnych, aby zapewnić czysty i zwarty wygląd na małych ekranach.
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -344,7 +343,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.1.3
+    Created by ToMi with AI • wersja 2.1.4
   </footer>
 
   <script>
@@ -542,10 +541,8 @@
 
           if (isDarkCell) {
             if (currentLayout === 'classic_corner') {
-              // Puste r=7, c=0 (ciemne pole)
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              // Puste r=3, c=4 (dokładnie ciemne pole w centrum)
               if (!(r === 3 && c === 4)) shouldBePawn = true;
             } else if (currentLayout === 'cross') {
               if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
@@ -817,7 +814,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.1.3\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.1.4\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
