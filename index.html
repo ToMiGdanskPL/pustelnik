@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.1.0</title>
+  <title>Pustelnik – Gra Warcabowa v2.1.1</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -145,7 +145,7 @@
 </head>
 <body class="dark-theme h-full flex flex-col justify-between overflow-x-hidden select-none">
 
-  <!-- NAGŁÓWEK Z ROZDZIELONYMI IKONAMI NA DWA WIERSZE -->
+  <!-- NAGŁÓWEK -->
   <header class="header-bar w-full border-b px-3 py-2.5 sticky top-0 z-40 backdrop-blur-md">
     <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -157,7 +157,6 @@
         </div>
       </div>
 
-      <!-- Ikony w dwóch rzędach / responsywne na telefonie -->
       <div class="flex items-center justify-center gap-1.5 flex-wrap">
         <button onclick="openStatsModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1 text-xs border border-slate-700" title="Statystyki">
           <i class="fa-solid fa-chart-pie"></i>
@@ -203,7 +202,6 @@
         </div>
       </div>
 
-      <!-- Wyśrodkowane przyciski sterujące -->
       <div class="flex items-center justify-center gap-2 w-full sm:w-auto">
         <button id="undoBtn" onclick="undoMove()" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center opacity-50 cursor-not-allowed">
           <i class="fa-solid fa-rotate-left"></i>
@@ -311,7 +309,7 @@
         Celem gry jest usunięcie z planszy jak najwięcej pionków poprzez przeskakiwanie po skosie nad sąsiednim pionkiem na wolne pole za nim.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Wersja 2.1.0:</strong> Usunięto automatyczne podpowiedzi (teraz podpowiedź wskazuje ruch pulsującym podświetleniem), poprawiono układy plansz na ciemnych polach oraz zoptymalizowano widok na telefonach.
+        <strong>Wersja 2.1.1:</strong> Naprawiono układ początkowy "Puste centrum" oraz "Diament", zapewniając prawidłowe rozmieszczenie pionków na ciemnych polach.
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -351,7 +349,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.1.0
+    Created by ToMi with AI • wersja 2.1.1
   </footer>
 
   <script>
@@ -376,7 +374,7 @@
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
       { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku (ciemne pole)' },
       { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
-      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień (ciemne pola)' }
+      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień z pustym środkiem' }
     ];
 
     const BOARD_THEMES = [
@@ -551,14 +549,17 @@
             if (currentLayout === 'classic_corner') {
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              // Środek planszy (np. r=3, c=3 to ciemne pole)
-              if (!(r === 3 && c === 3)) shouldBePawn = true;
+              // Puste ciemne pole na środku (np. r=3, c=4 lub r=4, c=3)
+              if (!(r === 3 && c === 4)) shouldBePawn = true;
             } else if (currentLayout === 'cross') {
               if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
             } else if (currentLayout === 'diamond') {
-              // Zewnętrzny pierścień z pustym środkiem na ciemnym polu (3,3)
-              if ((r > 1 && r < 6 && c > 1 && c < 6) && !(r === 3 && c === 3)) shouldBePawn = true;
-              else if (!((r === 3 && c === 3))) shouldBePawn = true;
+              // Diament: zewnętrzny pierścień z pustym środkiem na ciemnym polu (np. r=3, c=4)
+              if ((r >= 2 && r <= 5 && c >= 2 && c <= 5) && !(r === 3 && c === 4)) {
+                shouldBePawn = true;
+              } else if (!((r >= 2 && r <= 5 && c >= 2 && c <= 5))) {
+                shouldBePawn = true;
+              }
             }
           }
           row.push(shouldBePawn ? 1 : 0);
@@ -625,7 +626,6 @@
             cell.appendChild(moveDot);
           }
 
-          // Efekt podpowiedzi (migający pionek źródłowy i pole docelowe)
           if ((hintFrom && hintFrom.r === r && hintFrom.c === c) || (hintTo && hintTo.r === r && hintTo.c === c)) {
             cell.classList.add('hint-glow');
           }
@@ -669,7 +669,6 @@
     }
 
     function handleCellClick(r, c) {
-      // Czyszczenie podpowiedzi przy kliknięciu gracza
       if (hintFrom || hintTo) {
         hintFrom = null;
         hintTo = null;
@@ -733,7 +732,6 @@
       return allMoves;
     }
 
-    // Usunięcie automatycznych podpowiedzi – teraz podpowiedź jedynie miga/pulsuje
     function useHint() {
       if (hintsLeft <= 0) return;
       const validMoves = findAllValidMoves();
@@ -746,7 +744,6 @@
         playSound('hint');
         renderBoard();
 
-        // Wyłączenie efektu migania po 2.5 sekundach
         setTimeout(() => {
           if (hintFrom && hintTo) {
             hintFrom = null;
@@ -827,7 +824,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.1.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.1.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
