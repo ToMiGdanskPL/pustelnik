@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.0.1</title>
+  <title>Pustelnik – Gra Warcabowa v2.1.0</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -123,14 +123,13 @@
       pointer-events: none;
     }
 
-    .hint-target {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 4px dashed #3b82f6;
-      border-radius: 8px;
-      animation: pulse 1.2s infinite;
-      pointer-events: none;
+    .hint-glow {
+      animation: hint-flash 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes hint-flash {
+      from { box-shadow: 0 0 5px #3b82f6, inset 0 0 10px #3b82f6; }
+      to { box-shadow: 0 0 20px #60a5fa, inset 0 0 20px #60a5fa; }
     }
 
     @keyframes pulse {
@@ -146,38 +145,39 @@
 </head>
 <body class="dark-theme h-full flex flex-col justify-between overflow-x-hidden select-none">
 
-  <header class="header-bar w-full border-b px-4 py-3 sticky top-0 z-40 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
-          P
-        </div>
-        <div>
-          <h1 class="font-bold text-lg leading-tight tracking-wide">Pustelnik</h1>
-          <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">v2.0.1</span>
+  <!-- NAGŁÓWEK Z ROZDZIELONYMI IKONAMI NA DWA WIERSZE -->
+  <header class="header-bar w-full border-b px-3 py-2.5 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-slate-950 font-black text-base shadow-md">
+            P
+          </div>
+          <h1 class="font-bold text-base leading-tight tracking-wide">Pustelnik</h1>
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button onclick="openStatsModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Statystyki">
+      <!-- Ikony w dwóch rzędach / responsywne na telefonie -->
+      <div class="flex items-center justify-center gap-1.5 flex-wrap">
+        <button onclick="openStatsModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1 text-xs border border-slate-700" title="Statystyki">
           <i class="fa-solid fa-chart-pie"></i>
-          <span class="hidden md:inline text-xs font-semibold">Statystyki</span>
+          <span>Statystyki</span>
         </button>
-        <button onclick="openCustomizationModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="Personalizacja">
+        <button onclick="openCustomizationModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1 text-xs border border-slate-700" title="Personalizacja">
           <i class="fa-solid fa-palette"></i>
-          <span class="hidden md:inline text-xs font-semibold">Wygląd</span>
+          <span>Wygląd</span>
         </button>
-        <button onclick="openTop10Modal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1.5 text-sm border border-slate-700" title="TOP 10">
+        <button onclick="openTop10Modal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center gap-1 text-xs border border-slate-700" title="TOP 10">
           <i class="fa-solid fa-trophy"></i>
-          <span class="hidden md:inline text-xs font-semibold">TOP 10</span>
+          <span>TOP 10</span>
         </button>
-        <button onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-2 text-sm border border-slate-700">
+        <button onclick="toggleSound()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1 text-xs border border-slate-700" title="Dźwięk">
           <i id="soundIcon" class="fa-solid fa-volume-xmark text-amber-400"></i>
         </button>
-        <button onclick="toggleTheme()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center gap-1.5 text-sm border border-slate-700">
+        <button onclick="toggleTheme()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center justify-center gap-1 text-xs border border-slate-700" title="Motyw">
           <i id="themeIcon" class="fa-solid fa-sun text-amber-400"></i>
         </button>
-        <button onclick="openInfoModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-sm border border-slate-700">
+        <button onclick="openInfoModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 transition flex items-center justify-center text-xs border border-slate-700" title="Zasady">
           <i class="fa-solid fa-circle-info"></i>
         </button>
       </div>
@@ -186,30 +186,34 @@
 
   <main class="flex-grow flex flex-col justify-center items-center p-3 sm:p-6 max-w-6xl w-full mx-auto space-y-4">
 
-    <!-- PANEL STATYSTYK I KONTROLI -->
-    <div class="glass-panel w-full max-w-3xl rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
-        <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">31</div>
+    <!-- PANEL STATYSTYK I WYŚRODKOWANE PRZYCISKI -->
+    <div class="glass-panel w-full max-w-3xl rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center justify-around w-full sm:w-auto gap-6">
+        <div class="text-center sm:text-left">
+          <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
+          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">31</div>
+        </div>
+        <div class="text-center sm:text-left">
+          <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Zbicia</div>
+          <div id="capturesCountDisplay" class="text-xl sm:text-2xl font-black text-emerald-400">0</div>
+        </div>
+        <div class="text-center sm:text-left">
+          <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Czas</div>
+          <div id="timerDisplay" class="text-xl sm:text-2xl font-black text-indigo-400 font-mono">00:00</div>
+        </div>
       </div>
-      <div>
-        <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Zbicia</div>
-        <div id="capturesCountDisplay" class="text-xl sm:text-2xl font-black text-emerald-400">0</div>
-      </div>
-      <div>
-        <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Czas</div>
-        <div id="timerDisplay" class="text-xl sm:text-2xl font-black text-indigo-400 font-mono">00:00</div>
-      </div>
-      <div class="flex flex-wrap gap-1.5">
-        <button id="undoBtn" onclick="undoMove()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center opacity-50 cursor-not-allowed">
+
+      <!-- Wyśrodkowane przyciski sterujące -->
+      <div class="flex items-center justify-center gap-2 w-full sm:w-auto">
+        <button id="undoBtn" onclick="undoMove()" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center opacity-50 cursor-not-allowed">
           <i class="fa-solid fa-rotate-left"></i>
           <span id="undoBtnText">Cofnij (3)</span>
         </button>
-        <button id="hintBtn" onclick="useHint()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
+        <button id="hintBtn" onclick="useHint()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
           <i class="fa-solid fa-lightbulb text-amber-300"></i>
           <span id="hintBtnText">Podpowiedź (3)</span>
         </button>
-        <button onclick="resetGame()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
+        <button onclick="resetGame()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow-md flex items-center gap-1.5 justify-center">
           <i class="fa-solid fa-rotate-right"></i> Reset
         </button>
       </div>
@@ -224,7 +228,7 @@
 
   </main>
 
-  <!-- MODAL PERSONALIZACJI (WYGLĄD & UKŁAD) -->
+  <!-- MODAL PERSONALIZACJI -->
   <div id="customizationModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
     <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
@@ -238,23 +242,17 @@
       <div class="space-y-4">
         <div>
           <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Wariant układu początkowego:</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="layoutsContainer">
-            <!-- Wypełniane dynamicznie -->
-          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="layoutsContainer"></div>
         </div>
 
         <div>
           <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Motyw kolorystyczny planszy:</label>
-          <div class="grid grid-cols-2 gap-2" id="boardThemesContainer">
-            <!-- Wypełniane dynamicznie -->
-          </div>
+          <div class="grid grid-cols-2 gap-2" id="boardThemesContainer"></div>
         </div>
 
         <div>
           <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Kolor pionków:</label>
-          <div class="grid grid-cols-3 gap-2" id="pawnThemesContainer">
-            <!-- Wypełniane dynamicznie -->
-          </div>
+          <div class="grid grid-cols-3 gap-2" id="pawnThemesContainer"></div>
         </div>
       </div>
 
@@ -275,9 +273,7 @@
         <button onclick="closeStatsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <div class="grid grid-cols-2 gap-3" id="statsGridContainer">
-        <!-- Wypełniane dynamicznie -->
-      </div>
+      <div class="grid grid-cols-2 gap-3" id="statsGridContainer"></div>
 
       <button onclick="closeStatsModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700">
         Zamknij
@@ -312,10 +308,10 @@
         <button onclick="closeInfoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <p class="text-xs text-slate-300 leading-relaxed">
-        Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim <strong>wyłącznie po skosie</strong> na wolne pole za nim.
+        Celem gry jest usunięcie z planszy jak najwięcej pionków poprzez przeskakiwanie po skosie nad sąsiednim pionkiem na wolne pole za nim.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Wersja 2.0.1:</strong> Naprawiono zapętlanie się komunikatu o końcu ruchów po restarcie gry!
+        <strong>Wersja 2.1.0:</strong> Usunięto automatyczne podpowiedzi (teraz podpowiedź wskazuje ruch pulsującym podświetleniem), poprawiono układy plansz na ciemnych polach oraz zoptymalizowano widok na telefonach.
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -355,13 +351,14 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.0.1
+    Created by ToMi with AI • wersja 2.1.0
   </footer>
 
   <script>
     let board = [];
     let selectedCell = null;
-    let hintCell = null;
+    let hintFrom = null;
+    let hintTo = null;
     let soundEnabled = true;
     let theme = 'dark';
     let capturesCount = 0;
@@ -370,16 +367,16 @@
     let undoCountLeft = 3;
     let historyStack = [];
     let synth = null;
-    let isResetting = false; // Zapobiega wyzwalaniu końca gry podczas inicjalizacji
+    let isResetting = false;
 
     let timerInterval = null;
     let secondsElapsed = 0;
 
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
-      { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku planszy' },
+      { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku (ciemne pole)' },
       { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
-      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień z pustym środkiem' }
+      { id: 'diamond', name: 'Diament', desc: 'Zewnętrzny pierścień (ciemne pola)' }
     ];
 
     const BOARD_THEMES = [
@@ -538,7 +535,8 @@
       undoCountLeft = 3;
       historyStack = [];
       selectedCell = null;
-      hintCell = null;
+      hintFrom = null;
+      hintTo = null;
 
       updateButtonsUI();
       applyBoardTheme();
@@ -553,12 +551,14 @@
             if (currentLayout === 'classic_corner') {
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
+              // Środek planszy (np. r=3, c=3 to ciemne pole)
               if (!(r === 3 && c === 3)) shouldBePawn = true;
             } else if (currentLayout === 'cross') {
               if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
             } else if (currentLayout === 'diamond') {
-              if (r > 1 && r < 6 && c > 1 && c < 6 && !(r === 3 && c === 3)) shouldBePawn = true;
-              else if (!(r === 7 && c === 0)) shouldBePawn = true;
+              // Zewnętrzny pierścień z pustym środkiem na ciemnym polu (3,3)
+              if ((r > 1 && r < 6 && c > 1 && c < 6) && !(r === 3 && c === 3)) shouldBePawn = true;
+              else if (!((r === 3 && c === 3))) shouldBePawn = true;
             }
           }
           row.push(shouldBePawn ? 1 : 0);
@@ -625,15 +625,9 @@
             cell.appendChild(moveDot);
           }
 
-          if (hintCell) {
-            if (hintCell.fromR === r && hintCell.fromC === c) {
-              cell.classList.add('ring-4', 'ring-blue-500', 'z-10');
-            } else if (hintCell.toR === r && hintCell.toC === c) {
-              const hintMarker = document.createElement('div');
-              hintMarker.className = 'hint-target flex items-center justify-center text-blue-400 font-black text-xs';
-              hintMarker.innerHTML = '<i class="fa-solid fa-crosshairs text-lg animate-bounce"></i>';
-              cell.appendChild(hintMarker);
-            }
+          // Efekt podpowiedzi (migający pionek źródłowy i pole docelowe)
+          if ((hintFrom && hintFrom.r === r && hintFrom.c === c) || (hintTo && hintTo.r === r && hintTo.c === c)) {
+            cell.classList.add('hint-glow');
           }
 
           if (board[r][c] === 1) {
@@ -675,9 +669,15 @@
     }
 
     function handleCellClick(r, c) {
+      // Czyszczenie podpowiedzi przy kliknięciu gracza
+      if (hintFrom || hintTo) {
+        hintFrom = null;
+        hintTo = null;
+        renderBoard();
+      }
+
       if (board[r][c] === 1) {
         selectedCell = { r, c };
-        hintCell = null;
         playSound('select');
         renderBoard();
       } else if (board[r][c] === 0 && selectedCell) {
@@ -702,7 +702,6 @@
 
           capturesCount++;
           selectedCell = null;
-          hintCell = null;
           playSound('move');
           renderBoard();
         }
@@ -716,7 +715,8 @@
       capturesCount = lastState.captures;
       undoCountLeft--;
       selectedCell = null;
-      hintCell = null;
+      hintFrom = null;
+      hintTo = null;
       playSound('undo');
       renderBoard();
     }
@@ -733,17 +733,27 @@
       return allMoves;
     }
 
+    // Usunięcie automatycznych podpowiedzi – teraz podpowiedź jedynie miga/pulsuje
     function useHint() {
       if (hintsLeft <= 0) return;
       const validMoves = findAllValidMoves();
       if (validMoves.length > 0) {
         const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-        hintCell = randomMove;
-        selectedCell = { r: randomMove.fromR, c: randomMove.fromC };
+        hintFrom = { r: randomMove.fromR, c: randomMove.fromC };
+        hintTo = { r: randomMove.toR, c: randomMove.toC };
         hintsLeft--;
         hintsUsed++;
         playSound('hint');
         renderBoard();
+
+        // Wyłączenie efektu migania po 2.5 sekundach
+        setTimeout(() => {
+          if (hintFrom && hintTo) {
+            hintFrom = null;
+            hintTo = null;
+            renderBoard();
+          }
+        }, 2500);
       }
     }
 
@@ -817,7 +827,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.0.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.1.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
