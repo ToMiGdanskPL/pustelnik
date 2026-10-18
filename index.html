@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.0.0</title>
+  <title>Pustelnik – Gra Warcabowa v2.0.1</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -112,10 +112,6 @@
     .pawn:hover {
       transform: scale(1.08);
     }
-    .pawn.fade-out {
-      transform: scale(0);
-      opacity: 0;
-    }
 
     .valid-move-target {
       position: absolute;
@@ -158,7 +154,7 @@
         </div>
         <div>
           <h1 class="font-bold text-lg leading-tight tracking-wide">Pustelnik</h1>
-          <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">v2.0.0</span>
+          <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">v2.0.1</span>
         </div>
       </div>
 
@@ -319,7 +315,7 @@
         Celem gry jest usunięcie z planszy jak największej liczby pionków poprzez przeskakiwanie jednym pionkiem nad drugim <strong>wyłącznie po skosie</strong> na wolne pole za nim.
       </p>
       <p class="text-xs text-slate-300 leading-relaxed">
-        <strong>Nowości v2.0.0:</strong> Cofanie ruchów (do 3 na grę), wybór układu startowego, motywy planszy oraz udostępnianie wyników!
+        <strong>Wersja 2.0.1:</strong> Naprawiono zapętlanie się komunikatu o końcu ruchów po restarcie gry!
       </p>
       <button onclick="closeInfoModal()" class="w-full py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm">Rozumiem</button>
     </div>
@@ -351,7 +347,7 @@
       </div>
 
       <div class="pt-2 border-t border-slate-800/80 flex gap-2">
-        <button onclick="resetGame(); closeSummaryModal();" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg transition">
+        <button onclick="restartGameFromSummary()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg transition">
           Zagraj ponownie
         </button>
       </div>
@@ -359,7 +355,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.0.0
+    Created by ToMi with AI • wersja 2.0.1
   </footer>
 
   <script>
@@ -374,11 +370,11 @@
     let undoCountLeft = 3;
     let historyStack = [];
     let synth = null;
+    let isResetting = false; // Zapobiega wyzwalaniu końca gry podczas inicjalizacji
 
     let timerInterval = null;
     let secondsElapsed = 0;
 
-    // KONFIGURACJA PERSONALIZACJI
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
       { id: 'center_empty', name: 'Puste centrum', desc: 'Puste pole na środku planszy' },
@@ -459,7 +455,6 @@
     }
 
     function renderCustomizationOptions() {
-      // Layouts
       const lContainer = document.getElementById('layoutsContainer');
       lContainer.innerHTML = '';
       BOARD_LAYOUTS.forEach(l => {
@@ -473,7 +468,6 @@
         lContainer.appendChild(btn);
       });
 
-      // Board Themes
       const bContainer = document.getElementById('boardThemesContainer');
       bContainer.innerHTML = '';
       BOARD_THEMES.forEach(t => {
@@ -487,7 +481,6 @@
         bContainer.appendChild(btn);
       });
 
-      // Pawn Themes
       const pContainer = document.getElementById('pawnThemesContainer');
       pContainer.innerHTML = '';
       PAWN_THEMES.forEach(t => {
@@ -535,6 +528,9 @@
     }
 
     function initBoard() {
+      isResetting = true;
+      closeSummaryModal();
+      
       board = [];
       capturesCount = 0;
       hintsLeft = 3;
@@ -572,6 +568,10 @@
 
       startTimer();
       renderBoard();
+      
+      setTimeout(() => {
+        isResetting = false;
+      }, 100);
     }
 
     function updateButtonsUI() {
@@ -619,7 +619,6 @@
             cell.classList.add('ring-4', 'ring-amber-400', 'z-10');
           }
 
-          // Wyświetlanie kropek dostępnych ruchów dla zaznaczonego pionka
           if (validMovesForSelected.some(m => m.toR === r && m.toC === c)) {
             const moveDot = document.createElement('div');
             moveDot.className = 'valid-move-target';
@@ -653,7 +652,9 @@
       document.getElementById('capturesCountDisplay').innerText = capturesCount;
       updateButtonsUI();
 
-      checkGameStatus(totalPawns);
+      if (!isResetting) {
+        checkGameStatus(totalPawns);
+      }
     }
 
     function getValidMovesForCell(r, c) {
@@ -684,7 +685,6 @@
         const chosenMove = validMoves.find(m => m.toR === r && m.toC === c);
 
         if (chosenMove) {
-          // Zapis do historii przed ruchem (do cofania)
           historyStack.push({
             boardSnapshot: JSON.parse(JSON.stringify(board)),
             captures: capturesCount,
@@ -755,6 +755,8 @@
         recordGameStats(totalPawns === 1, totalPawns);
 
         setTimeout(() => {
+          if (isResetting) return;
+          
           const title = document.getElementById('summaryTitle');
           const text = document.getElementById('summaryText');
           
@@ -774,7 +776,6 @@
       }
     }
 
-    // STATYSTYKI GRACZA
     function getPlayerStats() {
       const saved = localStorage.getItem('pustelnik_stats');
       return saved ? JSON.parse(saved) : { gamesPlayed: 0, gamesWon: 0, bestTime: null, totalCaptures: 0 };
@@ -814,10 +815,9 @@
       `;
     }
 
-    // UDOSTĘPNIANIE WYNIKU
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.0.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.0.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
@@ -827,7 +827,6 @@
       }
     }
 
-    // TOP 10
     function getTop10Data() {
       const saved = localStorage.getItem('pustelnik_top10');
       return saved ? JSON.parse(saved) : [];
@@ -889,6 +888,11 @@
         `;
         container.appendChild(row);
       });
+    }
+
+    function restartGameFromSummary() {
+      closeSummaryModal();
+      initBoard();
     }
 
     function resetGame() { initBoard(); }
