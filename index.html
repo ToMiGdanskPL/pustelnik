@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pustelnik – Gra Warcabowa v2.2.0</title>
+  <title>Pustelnik – Gra Warcabowa v2.2.1</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -150,7 +150,7 @@
         <h1 class="font-bold text-base leading-tight tracking-wide">Pustelnik</h1>
       </div>
 
-      <!-- Ikony w nagłówku (tylko ikony na telefonie, teksty na większych ekranach) -->
+      <!-- Ikony w nagłówku -->
       <div class="flex items-center gap-1.5 sm:gap-2">
         <button onclick="openStatsModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center gap-1.5 text-xs sm:text-sm border border-slate-700" title="Statystyki">
           <i class="fa-solid fa-chart-pie"></i>
@@ -184,7 +184,7 @@
       <div class="flex items-center justify-around w-full sm:w-auto gap-6">
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Pionki</div>
-          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">31</div>
+          <div id="pawnsCountDisplay" class="text-xl sm:text-2xl font-black text-amber-400">29</div>
         </div>
         <div class="text-center sm:text-left">
           <div class="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase">Zbicia</div>
@@ -292,7 +292,7 @@
     </div>
   </div>
 
-  <!-- ZAKTUALIZOWANA INSTRUKCJA OBSŁUGI -->
+  <!-- INSTRUKCJA OBSŁUGI -->
   <div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
     <div class="glass-panel bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-700 pb-3">
@@ -316,7 +316,7 @@
           <ul class="list-disc pl-4 space-y-1">
             <li><strong>Cofnij (3 użycia):</strong> Pozwala cofnąć ostatni ruch i przywrócić usunięty pionek.</li>
             <li><strong>Podpowiedź (3 użycia):</strong> Wskazuje możliwy do wykonania skok poprzez delikatne, niebieskie pulsowanie pionka i pola docelowego przez 2,5 sekundy.</li>
-            <li><strong>Wygląd:</strong> Dostęp do wyboru motywów kolorystycznych szachownicy, kolorów pionków oraz 4 unikalnych układów początkowych (Klasyczny róg, Puste centrum, Krzyż, Diament).</li>
+            <li><strong>Wygląd:</strong> Wybór motywów kolorystycznych szachownicy, pionków oraz 4 symetrycznych układów początkowych (Klasyczny róg, Puste centrum, Krzyż, Diament).</li>
             <li><strong>Statystyki & TOP 10:</strong> Aplikacja zlicza sumę wygranych, najlepszy czas oraz wpisuje najlepszych graczy do tabeli liderów z podaniem dokładnej **daty i godziny** wpisu.</li>
           </ul>
         </div>
@@ -360,7 +360,7 @@
   </div>
 
   <footer class="footer-bar w-full text-center py-3 text-xs border-t">
-    Created by ToMi with AI • wersja 2.2.0
+    Created by ToMi with AI • wersja 2.2.1
   </footer>
 
   <script>
@@ -383,7 +383,7 @@
 
     const BOARD_LAYOUTS = [
       { id: 'classic_corner', name: 'Klasyczny róg', desc: 'Puste dolne lewe pole' },
-      { id: 'center_empty', name: 'Puste centrum', desc: 'Pełna plansza z jednym pustym polem na środku' },
+      { id: 'center_empty', name: 'Puste centrum', desc: 'Symetryczny układ z pustym środkiem' },
       { id: 'cross', name: 'Krzyż', desc: 'Układ w kształcie krzyża' },
       { id: 'diamond', name: 'Diament', desc: 'Kompaktowy romb (diament) w centrum' }
     ];
@@ -560,7 +560,10 @@
             if (currentLayout === 'classic_corner') {
               if (!(r === 7 && c === 0)) shouldBePawn = true;
             } else if (currentLayout === 'center_empty') {
-              if (!(r === 3 && c === 4)) shouldBePawn = true;
+              // Puste centrum z usuniętymi 2 skrajnymi pionkami dla idealnej wizualnej symetrii
+              if (!(r === 3 && c === 4) && !(r === 0 && c === 7) && !(r === 7 && c === 0)) {
+                shouldBePawn = true;
+              }
             } else if (currentLayout === 'cross') {
               if (r === 3 || r === 4 || c === 3 || c === 4) shouldBePawn = true;
             } else if (currentLayout === 'diamond') {
@@ -831,7 +834,7 @@
 
     function shareScore() {
       const pawnsLeft = document.getElementById('pawnsCountDisplay').innerText;
-      const shareText = `🎮 Pustelnik v2.2.0\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
+      const shareText = `🎮 Pustelnik v2.2.1\n🏆 Wynik: ${pawnsLeft === '1' ? 'Wygrana (1 pionek)! 🥇' : `Pozostało pionków: ${pawnsLeft}`}\n⏱️ Czas: ${formatTime(secondsElapsed)}\n💡 Użyte podpowiedzi: ${hintsUsed}`;
       
       if (navigator.share) {
         navigator.share({ title: 'Mój wynik w Pustelniku', text: shareText }).catch(() => {});
@@ -861,7 +864,6 @@
       const name = nameInput.value.trim() || 'Anonim';
       const now = new Date();
 
-      // Zapis pełnej daty z godziną i minutą (np. 18.10.2026, 14:35)
       const dateString = `${now.toLocaleDateString('pl-PL')}, ${now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`;
 
       const newEntry = {
@@ -896,7 +898,6 @@
         const row = document.createElement('div');
         row.className = 'p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between text-xs gap-2';
         
-        // Kompatybilność ze starszym formatem zapisów w localStorage
         const displayDateTime = item.dateTime || (item.date ? `${item.date}${item.time ? ', ' + item.time : ''}` : '-');
 
         row.innerHTML = `
